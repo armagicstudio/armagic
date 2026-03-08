@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anni Cafe - Menu</title>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0b1118;
+            --card-bg: #111d27;
+            --primary-green: #00d26a;
+            --text-gray: #a0aab4;
+            --text-white: #ffffff;
+            --overlay: rgba(0, 0, 0, 0.9);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-white);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        /* --- Header & Cart --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .brand h1 { margin: 0; font-size: 24px; }
+        .brand p { margin: 0; font-size: 11px; color: var(--text-gray); letter-spacing: 1px; }
+
+        .cart-wrapper {
+            background: #1a2632;
+            padding: 12px;
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            border: 1px solid #2d3741;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--primary-green);
+            color: #000;
+            font-size: 10px;
+            font-weight: bold;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: none; /* Shown via JS */
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- Category Navigation (No Scrollbar) --- */
+        .categories {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+            overflow-x: auto;
+            white-space: nowrap;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .categories::-webkit-scrollbar { display: none; }
+
+        .cat-btn {
+            background: #1a2632;
+            border: 1px solid #2d3741;
+            color: var(--text-gray);
+            padding: 8px 22px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .cat-btn.active {
+            background: var(--primary-green);
+            color: #000;
+            border-color: var(--primary-green);
+        }
+
+        /* --- Admin Add Button --- */
+        .admin-add-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px dashed #2d3741;
+            color: var(--text-gray);
+            text-decoration: none;
+            padding: 15px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .admin-add-btn:hover {
+            border-color: var(--primary-green);
+            color: var(--text-white);
+        }
+
+        /* --- Menu Card Styles --- */
+        .menu-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 15px;
+            border: 1px solid #1f2e3d;
+        }
+
+        .img-box {
+            background: #081a1a;
+            min-width: 85px;
+            height: 85px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .img-box img { width: 55px; height: auto; }
+
+        .details { flex: 1; }
+        .details h3 { margin: 0; font-size: 18px; font-weight: 600; }
+        .price { color: var(--primary-green); float: right; font-size: 18px; font-weight: bold; }
+        .desc { color: var(--text-gray); font-size: 13px; margin: 8px 0; line-height: 1.4; }
+        .label { font-size: 11px; color: var(--text-gray); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .btns { display: flex; gap: 10px; margin-top: 12px; }
+        .btn {
+            flex: 1; border-radius: 20px; border: none; padding: 10px;
+            cursor: pointer; font-size: 13px; text-align: center; text-decoration: none;
+        }
+        .btn-ar { 
+            background: rgba(0, 210, 106, 0.1); 
+            color: var(--primary-green); 
+            border: 1px solid rgba(0, 210, 106, 0.3); 
+        }
+        .btn-add { 
+            background: #0b3d26; 
+            color: var(--primary-green); 
+            border: 1px solid rgba(0, 210, 106, 0.2); 
+        }
+
+        /* --- Cart Overlay Page --- */
+        #cartOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--overlay); display: none; justify-content: center; align-items: flex-end;
+            z-index: 1000;
+        }
+        .cart-modal {
+            background: var(--card-bg); width: 100%; max-width: 500px;
+            border-radius: 30px 30px 0 0; padding: 30px 20px;
+            max-height: 80vh; overflow-y: auto;
+        }
+        .cart-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 0; border-bottom: 1px solid #1f2e3d;
+        }
+        .cart-total {
+            margin-top: 25px; font-size: 22px; font-weight: bold;
+            display: flex; justify-content: space-between; border-top: 1px solid #2d3741; padding-top: 15px;
+        }
+        .checkout-btn {
+            background: var(--primary-green); color: black; width: 100%;
+            padding: 16px; border-radius: 15px; border: none; font-weight: bold;
+            margin-top: 20px; cursor: pointer; font-size: 16px;
+        }
+        .close-cart { color: var(--text-gray); cursor: pointer; float: right; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="brand">
+            <h1>Anni Cafe</h1>
+            <p>DINE-IN ORDERING</p>
+        </div>
+        <div class="cart-wrapper" onclick="toggleCart(true)">
+            🛒 <div id="cartBadge" class="cart-badge">0</div>
+        </div>
+    </header>
+
+    <div class="categories">
+        <button class="cat-btn active" onclick="filterMenu('All', this)">All</button>
+        <button class="cat-btn" onclick="filterMenu('Appetizers', this)">Appetizers</button>
+        <button class="cat-btn" onclick="filterMenu('Main Course', this)">Main Course</button>
+        <button class="cat-btn" onclick="filterMenu('Desserts', this)">Desserts</button>
+        <button class="cat-btn" onclick="filterMenu('Beverages', this)">Beverages</button>
+    </div>
+
+    <a href="/menu/new" class="admin-add-btn">
+        <span style="color: var(--primary-green); font-size: 20px;">+</span> Add New Menu Item
+    </a>
+
+    <div id="menuList">
+        <% items.forEach(item => { %>
+        <div class="menu-card" data-category="<%= item.category %>">
+            <div class="img-box">
+                <img src="<%= item.poster %>" alt="<%= item.name %>">
+            </div>
+            <div class="details">
+                <span class="price">₹<%= item.price %></span>
+                <h3><%= item.name %></h3>
+                <p class="desc"><%= item.description %></p>
+                <span class="label"><%= item.category %></span>
+                <div class="btns">
+                    <a href="<%= item.model %>" class="btn btn-ar">view AR</a>
+                    <button class="btn btn-add" onclick="addToCart('<%= item.name %>', <%= item.price %>)">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+        <% }) %>
+    </div>
+</div>
+
+<div id="cartOverlay" onclick="if(event.target == this) toggleCart(false)">
+    <div class="cart-modal">
+        <span class="close-cart" onclick="toggleCart(false)">Close ✕</span>
+        <h2 style="margin-top: 0;">Your Order</h2>
+        <div id="cartItemsList">
+            </div>
+        <div class="cart-total">
+            <span>Total Amount:</span>
+            <span id="totalPrice" style="color: var(--primary-green);">₹0</span>
+        </div>
+        <button class="checkout-btn" onclick="confirmOrder()">Confirm Order</button>
+    </div>
+</div>
+
+<script>
+    let cart = [];
+
+    // --- Add Item to Cart ---
+    function addToCart(name, price) {
+        const existing = cart.find(item => item.name === name);
+        if (existing) {
+            existing.qty++;
+        } else {
+            cart.push({ name, price, qty: 1 });
+        }
+        renderCart();
+        
+        // Visual feedback on badge
+        const badge = document.getElementById('cartBadge');
+        badge.style.transform = "scale(1.3)";
+        setTimeout(() => badge.style.transform = "scale(1)", 150);
+    }
+
+    // --- Sync Cart UI ---
+    function renderCart() {
+        const list = document.getElementById('cartItemsList');
+        const badge = document.getElementById('cartBadge');
+        const totalDisp = document.getElementById('totalPrice');
+        
+        list.innerHTML = "";
+        let total = 0;
+        let count = 0;
+
+        if(cart.length === 0) {
+            list.innerHTML = "<p style='color: var(--text-gray); text-align: center;'>Your cart is empty.</p>";
+        }
+
+        cart.forEach((item, index) => {
+            total += (item.price * item.qty);
+            count += item.qty;
+            list.innerHTML += `
+                <div class="cart-item">
+                    <div>
+                        <strong style="font-size: 16px;">${item.name}</strong><br>
+                        <small style="color: var(--text-gray)">₹${item.price} x ${item.qty}</small>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <span style="font-weight: bold;">₹${item.price * item.qty}</span>
+                        <button onclick="removeFromCart(${index})" style="background:none; border:none; color:#ff4d4d; cursor:pointer; font-size: 18px;">✕</button>
+                    </div>
+                </div>
+            `;
+        });
+
+        badge.innerText = count;
+        badge.style.display = count > 0 ? "flex" : "none";
+        totalDisp.innerText = "₹" + total;
+    }
+
+    function removeFromCart(index) {
+        if(cart[index].qty > 1) cart[index].qty--;
+        else cart.splice(index, 1);
+        renderCart();
+    }
+
+    function toggleCart(show) {
+        const overlay = document.getElementById('cartOverlay');
+        overlay.style.display = show ? "flex" : "none";
+    }
+
+    function confirmOrder() {
+        if(cart.length === 0) return alert("Please add items first!");
+        alert("Order placed successfully! Total: " + document.getElementById('totalPrice').innerText);
+        cart = [];
+        renderCart();
+        toggleCart(false);
+    }
+
+    // --- Category Filter Logic ---
+    function filterMenu(category, btn) {
+        // Highlight active button
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Show/Hide cards
+        const cards = document.querySelectorAll('.menu-card');
+        cards.forEach(card => {
+            const itemCat = card.getAttribute('data-category');
+            if (category === 'All' || itemCat === category) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

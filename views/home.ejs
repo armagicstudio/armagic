@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anni Cafe - Welcome</title>
+    <style>
+        :root {
+            --bg-dark: #02060c;
+            --card-dark: #0b1118;
+            --accent-green: #00d26a;
+            --gradient-green: linear-gradient(135deg, #063d28 0%, #0b1118 100%);
+            --text-gray: #a0aab4;
+            --text-white: #ffffff;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-white);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        /* --- Header Section --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-circle {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #00d26a, #043a24);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(0, 210, 106, 0.3);
+        }
+
+        .brand-text h1 {
+            margin: 0;
+            font-size: 22px;
+            letter-spacing: 0.5px;
+        }
+
+        .brand-text p {
+            margin: 0;
+            font-size: 12px;
+            color: var(--text-gray);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .cart-icon {
+            background: #1a2632;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border: 1px solid #2d3741;
+        }
+
+        .badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: var(--accent-green);
+            color: black;
+            font-size: 10px;
+            font-weight: bold;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- Welcome Card --- */
+        .welcome-card {
+            background: var(--gradient-green);
+            border-radius: 30px;
+            padding: 40px 20px;
+            text-align: center;
+            border: 1px solid #14422e;
+            margin-bottom: 25px;
+        }
+
+        .welcome-card h2 {
+            font-size: 32px;
+            margin: 0 0 15px 0;
+            font-weight: 700;
+        }
+
+        .welcome-card p {
+            color: var(--text-white);
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            opacity: 0.9;
+        }
+
+        .order-btn {
+            background: var(--accent-green);
+            color: #000;
+            border: none;
+            padding: 12px 35px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(0, 210, 106, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .order-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* --- How It Works Section --- */
+        .how-it-works {
+            background: var(--card-dark);
+            border-radius: 30px;
+            padding: 25px;
+            border: 1px solid #1f2e3d;
+            text-align: center;
+        }
+
+        .how-it-works h3 {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 14px;
+            color: var(--text-gray);
+            margin-bottom: 20px;
+        }
+
+        .steps-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.4;
+            color: var(--text-white);
+        }
+
+        .step-number {
+            color: var(--text-gray);
+            min-width: 25px;
+            font-weight: bold;
+        }
+
+        .step-text {
+            flex: 1;
+            padding-left: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="brand-section">
+                <div class="logo-circle">Annii</div>
+                <div class="brand-text">
+                    <h1>Anni Cafe</h1>
+                    <p>Dine-In Ordering</p>
+                </div>
+            </div>
+            <div class="cart-icon">
+                <span style="font-size: 18px;">🛒</span>
+                <div class="badge">0</div>
+            </div>
+        </header>
+
+        <section class="welcome-card">
+            <h2>Welcome</h2>
+            <p>Browse our delicious menu and place your order. Our kitchen is ready to serve you!</p>
+            <a href="/menu" class="order-btn">Order Now</a>
+        </section>
+
+        <section class="how-it-works">
+            <h3>How It Works</h3>
+            <div class="steps-list">
+                <div class="step-item">
+                    <span class="step-number">1.</span>
+                    <span class="step-text">Browse the menu from your table.</span>
+                </div>
+                <div class="step-item">
+                    <span class="step-number">2.</span>
+                    <span class="step-text">Click on "View AR" to see your food item in 3D on your table through your mobile.</span>
+                </div>
+                <div class="step-item">
+                    <span class="step-number">3.</span>
+                    <span class="step-text">Add items to your order.</span>
+                </div>
+                <div class="step-item">
+                    <span class="step-number">4.</span>
+                    <span class="step-text">Review your cart and confirm.</span>
+                </div>
+                <div class="step-item">
+                    <span class="step-number">5.</span>
+                    <span class="step-text">Your order will be sent to the kitchen.</span>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Optional: Add simple transition logic if needed
+        document.querySelector('.order-btn').addEventListener('click', function(e) {
+            console.log("Navigating to menu...");
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

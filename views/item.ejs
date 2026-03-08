@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title><%= item.name %></title>
+
+<script type="module"
+src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
+</script>
+
+<style>
+
+body{
+font-family: Arial, sans-serif;
+text-align:center;
+background:#f5f5f5;
+margin:0;
+padding:20px;
+}
+
+h1{
+margin-bottom:20px;
+}
+
+model-viewer{
+width:400px;
+height:400px;
+margin:auto;
+background:white;
+border-radius:10px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+#ar-button{
+background:#ff4d4d;
+color:white;
+border:none;
+padding:10px 15px;
+border-radius:6px;
+cursor:pointer;
+font-size:16px;
+margin-top:10px;
+}
+
+#ar-button:hover{
+background:#e63c3c;
+}
+
+#ar-prompt{
+position:absolute;
+bottom:10px;
+left:50%;
+transform:translateX(-50%);
+display:none;
+}
+
+#ar-prompt img{
+width:50px;
+}
+
+.back{
+display:inline-block;
+margin-top:30px;
+text-decoration:none;
+color:white;
+background:#333;
+padding:10px 15px;
+border-radius:6px;
+}
+
+.back:hover{
+background:#000;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1><%= item.name %></h1>
+
+<model-viewer
+src="<%= item.model %>"
+ar
+ar-modes="scene-viewer webxr quick-look"
+camera-controls
+auto-rotate
+shadow-intensity="1"
+touch-action="pan-y"
+alt="<%= item.name %> 3D Model">
+
+<button slot="ar-button" id="ar-button">
+View in your space
+</button>
+
+<div id="ar-prompt">
+<img src="https://modelviewer.dev/assets/hand.png">
+</div>
+
+</model-viewer>
+
+<a class="back" href="/menu">⬅ Back to Menu</a>
+
+</body>
+</html>
