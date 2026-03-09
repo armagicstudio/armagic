@@ -64,7 +64,7 @@
             display: none;
             align-items: center;
             justify-content: center;
-            transition: transform 0.2s;
+            transition: 0.2s;
         }
 
         /* --- Category Navigation --- */
@@ -74,7 +74,6 @@
             margin-bottom: 25px;
             overflow-x: auto;
             white-space: nowrap;
-            -ms-overflow-style: none;
             scrollbar-width: none;
         }
         .categories::-webkit-scrollbar { display: none; }
@@ -110,11 +109,6 @@
             border-radius: 20px;
             margin-bottom: 20px;
             font-weight: bold;
-            transition: 0.3s;
-        }
-        .admin-add-btn:hover {
-            border-color: var(--primary-green);
-            color: var(--text-white);
         }
 
         /* --- Menu Card Styles --- */
@@ -145,20 +139,30 @@
         .desc { color: var(--text-gray); font-size: 13px; margin: 8px 0; line-height: 1.4; }
         .label { font-size: 11px; color: var(--text-gray); text-transform: uppercase; letter-spacing: 0.5px; }
 
-        .btns { display: flex; gap: 10px; margin-top: 12px; }
+        .btns { display: flex; gap: 10px; margin-top: 12px; height: 38px; }
         .btn {
             flex: 1; border-radius: 20px; border: none; padding: 10px;
             cursor: pointer; font-size: 13px; text-align: center; text-decoration: none;
+            display: flex; align-items: center; justify-content: center;
         }
-        .btn-ar { 
-            background: rgba(0, 210, 106, 0.1); 
-            color: var(--primary-green); 
-            border: 1px solid rgba(0, 210, 106, 0.3); 
+        .btn-ar { background: rgba(0, 210, 106, 0.1); color: var(--primary-green); border: 1px solid rgba(0, 210, 106, 0.3); }
+        .btn-add { background: #0b3d26; color: var(--primary-green); border: 1px solid rgba(0, 210, 106, 0.2); }
+
+        /* --- Quantity Controls on Menu Card --- */
+        .menu-qty-control {
+            flex: 1;
+            display: none; /* Hidden by default */
+            background: #0b3d26;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 210, 106, 0.2);
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            color: var(--primary-green);
         }
-        .btn-add { 
-            background: #0b3d26; 
-            color: var(--primary-green); 
-            border: 1px solid rgba(0, 210, 106, 0.2); 
+        .menu-qty-control button {
+            background: none; border: none; color: var(--primary-green); 
+            font-size: 20px; font-weight: bold; cursor: pointer; width: 30px;
         }
 
         /* --- Cart Overlay --- */
@@ -176,27 +180,10 @@
             display: flex; justify-content: space-between; align-items: center;
             padding: 15px 0; border-bottom: 1px solid #1f2e3d;
         }
-        
-        /* New Quantity Control UI */
-        .qty-box {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #1a2632;
-            padding: 5px 10px;
-            border-radius: 10px;
-            border: 1px solid #2d3741;
+        .cart-qty-box {
+            display: flex; align-items: center; gap: 10px; background: #1a2632;
+            padding: 5px 10px; border-radius: 10px; border: 1px solid #2d3741;
         }
-        .qty-btn {
-            background: none;
-            border: none;
-            color: var(--primary-green);
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            padding: 0 5px;
-        }
-
         .cart-total {
             margin-top: 25px; font-size: 22px; font-weight: bold;
             display: flex; justify-content: space-between; border-top: 1px solid #2d3741; padding-top: 15px;
@@ -236,7 +223,7 @@
 
     <div id="menuList">
         <% items.forEach(item => { %>
-        <div class="menu-card" data-category="<%= item.category %>">
+        <div class="menu-card" data-category="<%= item.category %>" id="card-<%= item.name.replace(/\s+/g, '') %>">
             <div class="img-box">
                 <img src="<%= item.poster %>" alt="<%= item.name %>">
             </div>
@@ -247,7 +234,14 @@
                 <span class="label"><%= item.category %></span>
                 <div class="btns">
                     <a href="<%= item.model %>" class="btn btn-ar">view AR</a>
-                    <button class="btn btn-add" onclick="addToCart('<%= item.name %>', <%= item.price %>)">Add to Cart</button>
+                    
+                    <button class="btn btn-add main-add-btn" onclick="addToCart('<%= item.name %>', <%= item.price %>)">Add</button>
+                    
+                    <div class="menu-qty-control">
+                        <button onclick="changeQtyByName('<%= item.name %>', -1)">-</button>
+                        <span class="qty-val">0</span>
+                        <button onclick="changeQtyByName('<%= item.name %>', 1)">+</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -278,25 +272,40 @@
         } else {
             cart.push({ name, price, qty: 1 });
         }
+        syncMenuCards();
         renderCart();
-        
-        const badge = document.getElementById('cartBadge');
-        badge.style.transform = "scale(1.3)";
-        setTimeout(() => badge.style.transform = "scale(1)", 150);
     }
 
-    // Function to handle + and -
-    function changeQty(index, delta) {
-        cart[index].qty += delta;
-        if (cart[index].qty <= 0) {
-            cart.splice(index, 1);
+    function changeQtyByName(name, delta) {
+        const index = cart.findIndex(item => item.name === name);
+        if (index !== -1) {
+            cart[index].qty += delta;
+            if (cart[index].qty <= 0) cart.splice(index, 1);
         }
+        syncMenuCards();
         renderCart();
     }
 
-    function removeFromCart(index) {
-        cart.splice(index, 1);
-        renderCart();
+    // Function to update the Main Menu buttons based on what's in the cart
+    function syncMenuCards() {
+        const cards = document.querySelectorAll('.menu-card');
+        
+        cards.forEach(card => {
+            const name = card.querySelector('h3').innerText;
+            const itemInCart = cart.find(item => item.name === name);
+            const addBtn = card.querySelector('.main-add-btn');
+            const qtyControl = card.querySelector('.menu-qty-control');
+            const qtyVal = card.querySelector('.qty-val');
+
+            if (itemInCart) {
+                addBtn.style.display = 'none';
+                qtyControl.style.display = 'flex';
+                qtyVal.innerText = itemInCart.qty;
+            } else {
+                addBtn.style.display = 'flex';
+                qtyControl.style.display = 'none';
+            }
+        });
     }
 
     function renderCart() {
@@ -318,17 +327,16 @@
             list.innerHTML += `
                 <div class="cart-item">
                     <div style="flex: 1;">
-                        <strong style="font-size: 16px;">${item.name}</strong><br>
-                        <small style="color: var(--text-gray)">₹${item.price} each</small>
+                        <strong>${item.name}</strong><br>
+                        <small style="color: var(--text-gray)">₹${item.price}</small>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <div class="qty-box">
-                            <button class="qty-btn" onclick="changeQty(${index}, -1)">-</button>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div class="cart-qty-box">
+                            <button style="background:none; border:none; color:var(--primary-green); cursor:pointer;" onclick="changeQtyByName('${item.name}', -1)">-</button>
                             <span>${item.qty}</span>
-                            <button class="qty-btn" onclick="changeQty(${index}, 1)">+</button>
+                            <button style="background:none; border:none; color:var(--primary-green); cursor:pointer;" onclick="changeQtyByName('${item.name}', 1)">+</button>
                         </div>
                         <span style="font-weight: bold; min-width: 50px; text-align: right;">₹${item.price * item.qty}</span>
-                        <button onclick="removeFromCart(${index})" style="background:none; border:none; color:#ff4d4d; cursor:pointer; font-size: 18px;">✕</button>
                     </div>
                 </div>
             `;
@@ -340,14 +348,14 @@
     }
 
     function toggleCart(show) {
-        const overlay = document.getElementById('cartOverlay');
-        overlay.style.display = show ? "flex" : "none";
+        document.getElementById('cartOverlay').style.display = show ? "flex" : "none";
     }
 
     function confirmOrder() {
         if(cart.length === 0) return alert("Please add items first!");
         alert("Order placed successfully! Total: " + document.getElementById('totalPrice').innerText);
         cart = [];
+        syncMenuCards();
         renderCart();
         toggleCart(false);
     }
@@ -355,15 +363,10 @@
     function filterMenu(category, btn) {
         document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-
         const cards = document.querySelectorAll('.menu-card');
         cards.forEach(card => {
             const itemCat = card.getAttribute('data-category');
-            if (category === 'All' || itemCat === category) {
-                card.style.display = 'flex';
-            } else {
-                card.style.display = 'none';
-            }
+            card.style.display = (category === 'All' || itemCat === category) ? 'flex' : 'none';
         });
     }
 </script>
